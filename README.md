@@ -1,5 +1,5 @@
-ORG Player v1.07 by JTE
-=======================
+ORG Player v1.07
+================
 Just pop that in_org.dll in your WinAmp/Plugins folder and load organya data~
 
 Released for free and open source under the WTFPL, see COPYING for full license information.
