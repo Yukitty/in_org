@@ -48,7 +48,9 @@
 #include "Bell.inc"
 #include "Cat.inc"
 
-#define VERSION "v1.07"
+#include "in_org.h"
+
+#define VERSION "v1.08 config"
 
 extern In_Module mod;
 char lastfn[MAX_PATH];
@@ -56,6 +58,7 @@ int paused;
 int seek_needed; // if != -1, it is the point that the decode thread should seek to, in ms.
 int decode_pos_ms; // current decoding position, in milliseconds
 int play_pos_ms;
+char ini_path[250]={0};
 
 // post this to the main window at end of file (after playback as stopped)
 #define WM_WA_MPEG_EOF WM_USER+2
@@ -131,7 +134,8 @@ static void clear_sound(void)
 		org.chan[i].playing.len = 0;
 	}
 }
-
+int maxstep=3; //julian edit
+int sstep=0; //julian edit
 static int set_step(unsigned int new_step)
 {
 	int i, j;
@@ -140,9 +144,15 @@ static int set_step(unsigned int new_step)
 		return 1;
 	else if(org.step == org.loop_end)
 	{
-		clear_sound();
-		decode_pos_ms = org.loop_start*org.tempo;
-		return set_step(org.loop_start);
+		sstep++; //julian edit
+		if(sstep<maxstep||maxstep==0){ //julian edit
+    		clear_sound();  
+    		decode_pos_ms = org.loop_start*org.tempo; //julian edit
+	       	return set_step(org.loop_start); //julian edit
+		}else{ //julian edit
+            sstep=0;
+            org.nonlooping=1; 
+        } //julian edit
 	}
 	for(i = 0; i < CHANNELS; i++)
 	{
@@ -481,9 +491,56 @@ static int load_org(const char *fn)
 	return 0;
 }
 
-static void config(HWND hwnd)
-{
-	MessageBox(hwnd,"No configuration necessary.","ORG Player Configuration",MB_OK);
+//static void config(HWND hwnd)
+//{
+//	DialogBox(mod.hDllInstance, (const char *)sstep, hwnd, config_dialog);
+//	MessageBox(hwnd,"No configuration necessary.","ORG Player Configuration",MB_OK);
+//}
+
+
+static BOOL CALLBACK WndCfgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){ 
+    char maxintval[20]; 
+      
+     switch (message)
+     {
+     case WM_INITDIALOG:
+            //Anstatt WM_CREATE heisst es hier WM_INITDIALOG            
+            SetDlgItemInt(hWnd, IDC_EditIter, maxstep,FALSE);
+            return TRUE; 
+     case WM_CLOSE:             
+            maxstep=GetDlgItemInt(hWnd, IDC_EditIter,NULL , FALSE);
+            
+            itoa(maxstep,maxintval,10);
+            WritePrivateProfileString( L"winamp_in_org_plugin",L"maxIteration",maxintval,ini_path );
+            EndDialog(hWnd,0);
+            return TRUE;  
+     case WM_COMMAND:
+            if (LOWORD(wParam) == IDC_OK) // is it the OK button?
+            {
+                      
+                maxstep=GetDlgItemInt(hWnd, IDC_EditIter,NULL , FALSE);
+                
+                itoa(maxstep,maxintval,10);
+                WritePrivateProfileString( L"winamp_in_org_plugin",L"maxIteration",maxintval,ini_path );
+            
+               EndDialog(hWnd, LOWORD(wParam));
+               return (INT_PTR)TRUE;
+            }
+            break;
+     }
+     return FALSE;
+}
+    
+HWND config_control_hwnd;
+void config(struct In_Module *this_mod){
+     ShowWindow((
+         config_control_hwnd=CreateDialog(
+             mod.hDllInstance,
+             MAKEINTRESOURCE(IDD_DLGFIRST),
+             mod.hMainWindow,
+             WndCfgProc)
+        ),
+     SW_SHOW);
 }
 
 static void about(HWND hwnd)
@@ -492,7 +549,17 @@ static void about(HWND hwnd)
 }
 
 static void init(void)
-{
+{       
+    char dir[32];    
+    sprintf(dir, "%s", (char*)SendMessage(mod.hMainWindow,WM_WA_IPC,0,IPC_GETINIDIRECTORY));
+    lstrcpyn(ini_path, dir, MAX_PATH - 32); // 32 will be (more than) enough room for \Plugins\plugin.ini
+    lstrcat(ini_path, "\\Plugins");
+    CreateDirectory(ini_path, NULL); // can't guarantee that this will exist
+    lstrcat(ini_path, "\\in_org.ini");
+    
+    
+	maxstep=GetPrivateProfileInt( L"winamp_in_org_plugin",L"maxIteration",maxstep,ini_path);
+    
 	org.loaded = 0;
 }
 
@@ -605,7 +672,7 @@ static int play(const char *fn) {
 	if (mod.SAVSAInit) mod.SAVSAInit(maxlatency,SAMPLERATE);
 	if (mod.VSASetInfo) mod.VSASetInfo(SAMPLERATE,NCH);
 	//mod.outMod->SetVolume(-666);
-	mod.outMod->SetVolume(255);
+//	mod.outMod->SetVolume(255);
 
 	killThread=0;
 	thread_handle = (HANDLE)CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)PlayThread,(void *)&killThread,0,&tmp);

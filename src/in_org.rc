@@ -1,0 +1,13 @@
+#include <windows.h>
+#include "in_org.h"
+IDD_DLGFIRST DIALOGEX 0, 0, 100, 40
+STYLE DS_SETFONT | DS_CENTER | DS_FIXEDSYS | WS_CHILD | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU 
+CAPTION "Organya Plugin Settings"
+FONT 8, "MS Sans Serif"
+BEGIN
+//    CONTROL         "Slider1",IDC_SLIDER1,"msctls_trackbar32",TBS_AUTOTICKS | 
+//                    TBS_VERT | WS_TABSTOP,3,0,20,128
+    LTEXT           "Loop iterations (0 for endless):",IDC_BOOGA,5,5,95,10
+    EDITTEXT        IDC_EditIter, 25, 15, 60, 10
+    DEFPUSHBUTTON   "Save/Close", IDC_OK, 60, 27, 40, 10 
+END
