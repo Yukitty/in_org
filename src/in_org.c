@@ -488,7 +488,7 @@ static void config(HWND hwnd)
 
 static void about(HWND hwnd)
 {
-	MessageBox(hwnd,"ORG Player "VERSION", by JTE (http://www.echidnatribe.org/)\nOrganya Data format by Studio Pixel","About ORG Player",MB_OK);
+	MessageBox(hwnd,"ORG Player "VERSION"\nOrganya Data format by Studio Pixel","About ORG Player",MB_OK);
 }
 
 static void init(void)
@@ -650,7 +650,7 @@ static void eq_set(int on, char data[10], int preamp) { (void)on; (void)data; (v
 
 In_Module mod = {
 	IN_VER,
-	"JTE's ORG Player "VERSION,
+	"ORG Player "VERSION,
 	NULL, // hMainWindow
 	NULL, // hDllInstance
 	"org\0Organya Music Data (*.org)\0",
