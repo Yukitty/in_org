@@ -50,7 +50,7 @@
 
 #include "in_org.h"
 
-#define VERSION "v1.08 config"
+#define VERSION "v1.08"
 
 extern In_Module mod;
 char lastfn[MAX_PATH];
