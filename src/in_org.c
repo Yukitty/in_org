@@ -146,12 +146,12 @@ static int set_step(unsigned int new_step)
 	{
 		sstep++; //julian edit
 		if(sstep<maxstep||maxstep==0){ //julian edit
-    		clear_sound();  
+    		clear_sound();
     		decode_pos_ms = org.loop_start*org.tempo; //julian edit
 	       	return set_step(org.loop_start); //julian edit
 		}else{ //julian edit
             sstep=0;
-            org.nonlooping=1; 
+            org.nonlooping=1;
         } //julian edit
 	}
 	for(i = 0; i < CHANNELS; i++)
