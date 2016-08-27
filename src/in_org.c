@@ -498,49 +498,52 @@ static int load_org(const char *fn)
 //}
 
 
-static BOOL CALLBACK WndCfgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){ 
-    char maxintval[20]; 
-      
-     switch (message)
-     {
-     case WM_INITDIALOG:
-            //Anstatt WM_CREATE heisst es hier WM_INITDIALOG            
-            SetDlgItemInt(hWnd, IDC_EditIter, maxstep,FALSE);
-            return TRUE; 
-     case WM_CLOSE:             
-            maxstep=GetDlgItemInt(hWnd, IDC_EditIter,NULL , FALSE);
-            
-            itoa(maxstep,maxintval,10);
-            WritePrivateProfileString( L"winamp_in_org_plugin",L"maxIteration",maxintval,ini_path );
-            EndDialog(hWnd,0);
-            return TRUE;  
-     case WM_COMMAND:
-            if (LOWORD(wParam) == IDC_OK) // is it the OK button?
-            {
-                      
-                maxstep=GetDlgItemInt(hWnd, IDC_EditIter,NULL , FALSE);
-                
-                itoa(maxstep,maxintval,10);
-                WritePrivateProfileString( L"winamp_in_org_plugin",L"maxIteration",maxintval,ini_path );
-            
-               EndDialog(hWnd, LOWORD(wParam));
-               return (INT_PTR)TRUE;
-            }
-            break;
-     }
-     return FALSE;
+static BOOL CALLBACK WndCfgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	char maxintval[20];
+
+	(void)lParam; // unused
+
+	switch (message)
+	{
+	case WM_INITDIALOG:
+		//Anstatt WM_CREATE heisst es hier WM_INITDIALOG
+		SetDlgItemInt(hWnd, IDC_EditIter, maxstep,FALSE);
+		return TRUE;
+	case WM_CLOSE:
+		maxstep=GetDlgItemInt(hWnd, IDC_EditIter,NULL , FALSE);
+
+		itoa(maxstep,maxintval,10);
+		WritePrivateProfileString( TEXT("winamp_in_org_plugin"),TEXT("maxIteration"),maxintval,ini_path );
+		EndDialog(hWnd,0);
+		return TRUE;
+	 case WM_COMMAND:
+		if (LOWORD(wParam) == IDC_OK) // is it the OK button?
+		{
+			maxstep=GetDlgItemInt(hWnd, IDC_EditIter,NULL , FALSE);
+
+			itoa(maxstep,maxintval,10);
+			WritePrivateProfileString( TEXT("winamp_in_org_plugin"),TEXT("maxIteration"),maxintval,ini_path );
+
+		   EndDialog(hWnd, LOWORD(wParam));
+		   return (INT_PTR)TRUE;
+		}
+		break;
+	 }
+	 return FALSE;
 }
-    
+
 HWND config_control_hwnd;
-void config(struct In_Module *this_mod){
-     ShowWindow((
-         config_control_hwnd=CreateDialog(
-             mod.hDllInstance,
-             MAKEINTRESOURCE(IDD_DLGFIRST),
-             mod.hMainWindow,
-             WndCfgProc)
-        ),
-     SW_SHOW);
+void config(HWND hwnd)
+{
+	ShowWindow((
+		config_control_hwnd=CreateDialog(
+			mod.hDllInstance,
+			MAKEINTRESOURCE(IDD_DLGFIRST),
+			hwnd,
+			WndCfgProc)
+		),
+	SW_SHOW);
 }
 
 static void about(HWND hwnd)
@@ -549,17 +552,15 @@ static void about(HWND hwnd)
 }
 
 static void init(void)
-{       
-    char dir[32];    
-    sprintf(dir, "%s", (char*)SendMessage(mod.hMainWindow,WM_WA_IPC,0,IPC_GETINIDIRECTORY));
-    lstrcpyn(ini_path, dir, MAX_PATH - 32); // 32 will be (more than) enough room for \Plugins\plugin.ini
-    lstrcat(ini_path, "\\Plugins");
-    CreateDirectory(ini_path, NULL); // can't guarantee that this will exist
-    lstrcat(ini_path, "\\in_org.ini");
-    
-    
-	maxstep=GetPrivateProfileInt( L"winamp_in_org_plugin",L"maxIteration",maxstep,ini_path);
-    
+{
+	char dir[32];
+	sprintf(dir, "%s", (char*)SendMessage(mod.hMainWindow,WM_WA_IPC,0,IPC_GETINIDIRECTORY));
+	lstrcpyn(ini_path, dir, MAX_PATH - 32); // 32 will be (more than) enough room for \Plugins\plugin.ini
+	lstrcat(ini_path, "\\Plugins");
+	CreateDirectory(ini_path, NULL); // can't guarantee that this will exist
+	lstrcat(ini_path, "\\in_org.ini");
+
+	maxstep=GetPrivateProfileInt( TEXT("winamp_in_org_plugin"),TEXT("maxIteration"),maxstep,ini_path);
 	org.loaded = 0;
 }
 
