@@ -1,5 +1,5 @@
-ORG Player v1.08
-================
+ORG Player
+==========
 Looking for binaries? See the [releases page](https://github.com/Yukitty/in_org/releases).
 
 **To use:**
