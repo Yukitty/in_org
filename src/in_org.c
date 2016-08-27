@@ -545,7 +545,7 @@ void config(struct In_Module *this_mod){
 
 static void about(HWND hwnd)
 {
-	MessageBox(hwnd,"ORG Player "VERSION"\nOrganya Data format by Studio Pixel","About ORG Player",MB_OK);
+	MessageBox(hwnd,"ORG Player "VERSION"\nOrganya Data format and instrument samples by Studio Pixel","About ORG Player",MB_OK);
 }
 
 static void init(void)
