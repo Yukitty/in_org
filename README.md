@@ -18,13 +18,4 @@ To play beta tracks with the most common beta drumset, change the file's interna
 The Japanese OrgMaker 2 drum set is not supported at the moment, but the English version is available under Org-02 as normal due to no conflicts in instrument numbering.
 
 **To compile your own:**
-- Use the _wxDev-C++_ project file
-<br>**or**
-- Make a new project file for your IDE of choice, including both `in_org.c` and `in_org.rc`
-<br>**or**
-- Do something like this:
-```
-gcc -c src/in_org.c -o obj/in_org.o
-windres src/in_org.rc obj/in_org-res.o
-gcc -o in_org.dll obj/in_org.o obj/in_org-res.o -shared
-```
+- mingw32-make
