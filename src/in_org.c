@@ -58,7 +58,7 @@ int paused;
 int seek_needed; // if != -1, it is the point that the decode thread should seek to, in ms.
 int decode_pos_ms; // current decoding position, in milliseconds
 int play_pos_ms;
-char ini_path[250]={0};
+char ini_path[MAX_PATH]={0};
 
 // post this to the main window at end of file (after playback as stopped)
 #define WM_WA_MPEG_EOF WM_USER+2
