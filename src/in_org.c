@@ -221,11 +221,11 @@ static int load_org(const char *fn)
 
 	fread(org.version_string, 1, 6, fp);
 	org.version_string[6] = '\0';
-	if(strncmp(org.version_string,"Org-0",5) || org.version_string[5] < '1' || org.version_string[5] > '3')
+	if(strncmp(org.version_string,"Org-0",5) || org.version_string[5] < '1' || org.version_string[5] > '2')
 	{
 		char msg[256];
 		fclose(fp);
-		sprintf(msg,"Invalid Org header '%s' (Only 'Org-01' through 'Org-03' supported)",org.version_string);
+		sprintf(msg,"Invalid Org header '%s' (Only 'Org-01' through 'Org-02' supported)",org.version_string);
 		MessageBox(mod.hMainWindow,msg,"ORG Player Error",MB_OK);
 		return 1;
 	}
