@@ -244,7 +244,7 @@ static int load_org(const char *fn)
 		if(i < CHANNELS/2)
 		{
 			org.chan[i].block = &Wave100[(org.chan[i].inst)*WAVELENGTH];
-			org.chan[i].length = WAVELENGTH;
+			org.chan[i].length = WAVELENGTH-1;
 			org.chan[i].freq = 44100+org.chan[i].pitch-1000;
 		}
 		else
