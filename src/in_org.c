@@ -721,6 +721,8 @@ static int get_576_samples(char *buf)
 		{
 			for(i = 0; i < CHANNELS; i++)
 			{
+				org.chan[i].wave = 0;
+
 				if(org.chan[i].pos < -1.0)
 					continue;
 
@@ -728,7 +730,6 @@ static int get_576_samples(char *buf)
 					&& org.chan[i].pos > 0.0 && (unsigned int)org.chan[i].pos >= org.chan[i].length)
 				{
 					org.chan[i].pos = -2.0;
-					org.chan[i].wave = 0;
 					continue;
 				}
 
@@ -744,11 +745,12 @@ static int get_576_samples(char *buf)
 		}
 
 		// Copy in the current waves
-		wave = 0x00;
+		wave = 0;
 		for(i = 0; i < CHANNELS; i++)
 		{
-			if(org.chan[i].pos < -1.0)
+			if(org.chan[i].pos < 0.0)
 				continue;
+
 			pan = 1.0;
 			if(NCH == 2)
 			{
@@ -761,11 +763,13 @@ static int get_576_samples(char *buf)
 			wave += org.chan[i].wave*pan;
 		}
 
-		// Clip the wave, don't overflow!
+		// clamp wave
 		if (wave > 0x7F)
 			wave = 0x7F;
 		if (wave < -0x80)
 			wave = -0x80;
+
+		// if BPS is 8, go unsigned again.
 		if (BPS == 8)
 			buf[l] = wave+0x80;
 		else
@@ -799,7 +803,6 @@ static int get_576_samples(char *buf)
 					break;
 			}
 		}
-
 	}
 	return l;
 }
