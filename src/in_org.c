@@ -106,7 +106,7 @@ typedef struct
 	struct
 	{
 		unsigned int position;
-		unsigned char key,len,pan,dimmed;
+		unsigned char key,len,pan;
 		unsigned short vol;
 	} playing;
 } orgchan_t;
@@ -176,14 +176,12 @@ static int set_step(unsigned int new_step)
 					else
 						org.chan[i].playing.len = org.chan[i].notes[j].len;
 					org.chan[i].pos = -1.0;
-					org.chan[i].playing.dimmed = FALSE;
 				}
 				if(org.chan[i].notes[j].vol != 0xFF)
 				{
 					if (i < CHANNELS/2) {
 						org.chan[i].playing.vol = org.chan[i].notes[j].vol+50;
-						if (org.chan[i].playing.dimmed)
-							org.chan[i].playing.vol = 3 * org.chan[i].playing.vol / 4;
+						org.chan[i].playing.vol = 3 * org.chan[i].playing.vol / 4;
 					} else
 						org.chan[i].playing.vol = org.chan[i].notes[j].vol+50;
 				}
@@ -825,11 +823,6 @@ static int get_576_samples(char *buf)
 					move = -move;
 				move *= (double)org.chan[i].freq/SAMPLERATE;
 				org.chan[i].pos += move;
-				if (!org.chan[i].playing.dimmed && org.chan[i].pos >= org.chan[i].length)
-				{
-					org.chan[i].playing.vol = 3 * org.chan[i].playing.vol / 4;
-					org.chan[i].playing.dimmed = TRUE;
-				}
 				while(i < CHANNELS/2 && org.chan[i].pos >= org.chan[i].length && org.chan[i].playing.len > 0)
 					org.chan[i].pos -= org.chan[i].length;
 			}
