@@ -254,11 +254,9 @@ static int load_org(const char *fn)
 		}
 		else
 		{
-			if (org.version == 1)
-			{
-			org.chan[i].freq = 22050;
-			switch(org.chan[i].inst)
-			{
+			if (org.version == 1 && org.chan[i].inst < 12)
+				switch(org.chan[i].inst)
+				{
 				case 0:
 					org.chan[i].block = Bass01Beta;
 					org.chan[i].length = BASS01BETALENGTH;
@@ -307,22 +305,10 @@ static int load_org(const char *fn)
 					org.chan[i].block = Tom02;
 					org.chan[i].length = TOM02LENGTH;
 					break;
-				default:
-					org.chan[i].block = NULL;
-					org.chan[i].length = 0;
-					{
-						char msg[256];
-						sprintf(msg,"Invalid Org instrument %d",org.chan[i].inst);
-						MessageBox(mod.hMainWindow,msg,"ORG Player Error",MB_OK);
-					}
-					break;
-			}
-			}
-			else if (org.version == 2)
-			{
-			org.chan[i].freq = 22050;
-			switch(org.chan[i].inst)
-			{
+				}
+			else
+				switch(org.chan[i].inst)
+				{
 				case 0:
 					org.chan[i].block = Bass01;
 					org.chan[i].length = BASS01LENGTH;
@@ -445,9 +431,8 @@ static int load_org(const char *fn)
 						MessageBox(mod.hMainWindow,msg,"ORG Player Error",MB_OK);
 					}
 					break;
-			}
-			}
-			org.chan[i].freq += org.chan[i].pitch-1000;
+				}
+			org.chan[i].freq = 22050+org.chan[i].pitch-1000;
 		}
 		fread(&org.chan[i].pi, 1, 1, fp);
 		fread(&org.chan[i].num_notes, 2, 1, fp);
