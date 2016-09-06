@@ -134,8 +134,8 @@ static void clear_sound(void)
 		org.chan[i].playing.len = 0;
 	}
 }
-int maxstep=3; //julian edit
-int sstep=0; //julian edit
+int maxloops = 3;
+int loop = 0;
 static int set_step(unsigned int new_step)
 {
 	int i, j;
@@ -144,15 +144,17 @@ static int set_step(unsigned int new_step)
 		return 1;
 	else if(org.step == org.loop_end)
 	{
-		sstep++; //julian edit
-		if(sstep<maxstep||maxstep==0){ //julian edit
-    		clear_sound();
-    		decode_pos_ms = org.loop_start*org.tempo; //julian edit
-	       	return set_step(org.loop_start); //julian edit
-		}else{ //julian edit
-            sstep=0;
-            org.nonlooping=1;
-        } //julian edit
+		loop++;
+		if(loop < maxloops || maxloops == 0)
+		{
+			clear_sound();
+			decode_pos_ms = org.loop_start*org.tempo;
+			return set_step(org.loop_start);
+		}
+		else {
+			loop = 0;
+			org.nonlooping = 1; // FIXME: dirty julian hack
+		}
 	}
 	for(i = 0; i < CHANNELS; i++)
 	{
@@ -507,26 +509,25 @@ static BOOL CALLBACK WndCfgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 	switch (message)
 	{
 	case WM_INITDIALOG:
-		//Anstatt WM_CREATE heisst es hier WM_INITDIALOG
-		SetDlgItemInt(hWnd, IDC_EditIter, maxstep,FALSE);
+		SetDlgItemInt(hWnd, IDC_EditIter, maxloops, FALSE);
 		return TRUE;
 	case WM_CLOSE:
-		maxstep=GetDlgItemInt(hWnd, IDC_EditIter,NULL , FALSE);
+		maxloops = GetDlgItemInt(hWnd, IDC_EditIter, NULL, FALSE);
 
-		itoa(maxstep,maxintval,10);
+		itoa(maxloops, maxintval, 10);
 		WritePrivateProfileString( TEXT("winamp_in_org_plugin"),TEXT("maxIteration"),maxintval,ini_path );
 		EndDialog(hWnd,0);
 		return TRUE;
 	 case WM_COMMAND:
-		if (LOWORD(wParam) == IDC_OK) // is it the OK button?
+		if (LOWORD(wParam) == IDC_OK)
 		{
-			maxstep=GetDlgItemInt(hWnd, IDC_EditIter,NULL , FALSE);
+			maxloops = GetDlgItemInt(hWnd, IDC_EditIter, NULL, FALSE);
 
-			itoa(maxstep,maxintval,10);
+			itoa(maxloops,maxintval,10);
 			WritePrivateProfileString( TEXT("winamp_in_org_plugin"),TEXT("maxIteration"),maxintval,ini_path );
 
 		   EndDialog(hWnd, LOWORD(wParam));
-		   return (INT_PTR)TRUE;
+		   return TRUE;
 		}
 		break;
 	 }
@@ -560,7 +561,7 @@ static void init(void)
 	CreateDirectory(ini_path, NULL); // can't guarantee that this will exist
 	lstrcat(ini_path, "\\in_org.ini");
 
-	maxstep=GetPrivateProfileInt( TEXT("winamp_in_org_plugin"),TEXT("maxIteration"),maxstep,ini_path);
+	maxloops = GetPrivateProfileInt( TEXT("winamp_in_org_plugin"),TEXT("maxIteration"),maxloops,ini_path);
 	org.loaded = 0;
 }
 
