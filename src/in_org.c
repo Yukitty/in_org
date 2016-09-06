@@ -176,10 +176,9 @@ static int set_step(unsigned int new_step)
 				}
 				if(org.chan[i].notes[j].vol != 0xFF)
 				{
-					if (i < CHANNELS/2) {
-						org.chan[i].playing.vol = org.chan[i].notes[j].vol+50;
-						org.chan[i].playing.vol = 3 * org.chan[i].playing.vol / 4;
-					} else
+					if (i < CHANNELS/2)
+						org.chan[i].playing.vol = org.chan[i].notes[j].vol;
+					else
 						org.chan[i].playing.vol = org.chan[i].notes[j].vol+50;
 				}
 				if(org.chan[i].notes[j].pan != 0xFF)
