@@ -457,7 +457,7 @@ static int load_org(const char *fn)
 		for(j = 0; j < org.chan[i].num_notes; j++)
 		{
 			fread(&org.chan[i].notes[j].position, 4, 1, fp);
-			if(org.chan[i].notes[j].position > org.loop_start
+			if(org.chan[i].notes[j].position >= org.loop_start
 			&& org.chan[i].notes[j].position < org.loop_end)
 				org.nonlooping = 0;
 		}
