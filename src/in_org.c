@@ -712,8 +712,10 @@ static int get_576_samples(char *buf)
 {
 	int l, wave;
 	double pan, move;
+
 	if(org.nonlooping && org.step >= org.loop_start)
 		return 0;
+
 	for(l = 0; l < 576*NCH*(BPS/8); l++)
 	{
 		int i;
@@ -789,6 +791,8 @@ static int get_576_samples(char *buf)
 				org.chan[i].pos += move;
 				while(i < CHANNELS/2 && org.chan[i].pos >= org.chan[i].length && org.chan[i].playing.len > 0)
 					org.chan[i].pos -= org.chan[i].length;
+				if (org.chan[i].pos < 0.0)
+					org.chan[i].pos = 0.0;
 			}
 			org.tick++;
 			if(org.tick >= (unsigned)org.tempo*SAMPLERATE/1000)
