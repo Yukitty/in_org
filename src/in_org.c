@@ -98,7 +98,7 @@ typedef struct
 	unsigned char inst,pi;
 	unsigned short num_notes;
 	double pos;
-	const unsigned char *block;
+	const void *block;
 	unsigned int length;
 	unsigned short freq;
 	short wave;
@@ -252,28 +252,18 @@ static int load_org(const char *fn)
 		}
 		else
 		{
-			if (org.version == 1 && org.chan[i].inst < 12)
+			org.chan[i].block = NULL;
+			org.chan[i].length = 0;
+			if (org.version == 1)
 				switch(org.chan[i].inst)
 				{
 				case 0:
 					org.chan[i].block = Bass01Beta;
 					org.chan[i].length = BASS01BETALENGTH;
 					break;
-				case 1:
-					org.chan[i].block = Bass02;
-					org.chan[i].length = BASS02LENGTH;
-					break;
 				case 2:
 					org.chan[i].block = Snare01Beta;
 					org.chan[i].length = SNARE01BETALENGTH;
-					break;
-				case 3:
-					org.chan[i].block = Snare02;
-					org.chan[i].length = SNARE02LENGTH;
-					break;
-				case 4:
-					org.chan[i].block = Tom01;
-					org.chan[i].length = TOM01LENGTH;
 					break;
 				case 5:
 					org.chan[i].block = HiCloseBeta;
@@ -287,24 +277,10 @@ static int load_org(const char *fn)
 					org.chan[i].block = CrashBeta;
 					org.chan[i].length = CRASHBETALENGTH;
 					break;
-				case 8:
-					org.chan[i].block = Per01;
-					org.chan[i].length = PER01LENGTH;
-					break;
-				case 9:
-					org.chan[i].block = Per02;
-					org.chan[i].length = PER02LENGTH;
-					break;
-				case 10:
-					org.chan[i].block = Bass03;
-					org.chan[i].length = BASS03LENGTH;
-					break;
-				case 11:
-					org.chan[i].block = Tom02;
-					org.chan[i].length = TOM02LENGTH;
+				default:
 					break;
 				}
-			else
+			if (org.chan[i].block == NULL)
 				switch(org.chan[i].inst)
 				{
 				case 0:
@@ -421,8 +397,6 @@ static int load_org(const char *fn)
 					org.chan[i].length = CATLENGTH;
 					break;
 				default:
-					org.chan[i].block = NULL;
-					org.chan[i].length = 0;
 					{
 						char msg[256];
 						sprintf(msg,"Invalid Org instrument %d",org.chan[i].inst);
@@ -748,33 +722,24 @@ static int get_576_samples(char *buf)
 		{
 			for(i = 0; i < CHANNELS; i++)
 			{
-				double fraction;
 				if(org.chan[i].pos < -1.0)
 					continue;
+
 				if(((i < CHANNELS/2 && org.chan[i].playing.len <= 0) || i >= CHANNELS/2)
-					&& org.chan[i].pos > 0.0 && (unsigned int)org.chan[i].pos >= org.chan[i].length+1)
+					&& org.chan[i].pos > 0.0 && (unsigned int)org.chan[i].pos >= org.chan[i].length)
 				{
 					org.chan[i].pos = -2.0;
 					org.chan[i].wave = 0;
 					continue;
 				}
-				fraction = org.chan[i].pos - floor(org.chan[i].pos);
-				if (i >= CHANNELS/2) {
-					if ((int)org.chan[i].pos > 0)
-						org.chan[i].wave = (signed)(org.chan[i].block[(int)(org.chan[i].pos-1)]-0x80)*(1.0-fraction);
-					else
-						org.chan[i].wave = 0;
-					if (((unsigned int)org.chan[i].pos)+1 < org.chan[i].length)
-						org.chan[i].wave += (signed)(org.chan[i].block[(int)org.chan[i].pos]-0x80)*fraction;
-				}
-				else {
-					if ((int)org.chan[i].pos > 0)
-						org.chan[i].wave = (signed char)org.chan[i].block[(int)(org.chan[i].pos-1)]*(1.0-fraction);
-					else
-						org.chan[i].wave = 0;
-					if (((unsigned int)org.chan[i].pos)+1 < org.chan[i].length)
-						org.chan[i].wave += (signed char)org.chan[i].block[(int)org.chan[i].pos]*fraction;
-				}
+
+				// Wave100 is signed
+				if (i < CHANNELS/2)
+					org.chan[i].wave = ((const signed char *)org.chan[i].block)[(int)org.chan[i].pos];
+				// Drums are unsigned
+				else
+					org.chan[i].wave = ((const unsigned char *)org.chan[i].block)[(int)org.chan[i].pos] - 0x80;
+
 				org.chan[i].wave *= org.chan[i].playing.vol / 256.0;
 			}
 		}
@@ -794,7 +759,6 @@ static int get_576_samples(char *buf)
 				if(pan > 1.0)
 					pan = 1.0;
 			}
-			//if (i>=CHANNELS/2)
 			wave += org.chan[i].wave*pan;
 		}
 
